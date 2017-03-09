@@ -77,7 +77,6 @@ class AppGateway:
 
 
     def verifyandmove(self, apps):
-        #TODO second step of verification
         for app in apps:
             appfile = os.path.join(self.tempdir, app + ".apk")
             if AppGateway.verifyApk(app, appfile, self.configparser.get(app, "cert_sha256")):
@@ -97,10 +96,14 @@ class AppGateway:
         for line in lines:
             if "SHA256" in line:
                 sha256_is = line.split(": ")[1]
-        if sha256_wanted == sha256_is:
-            return True
-        else:
+        if sha256_wanted != sha256_is:
             return False
+        else:
+            jarsign_out = subprocess.check_output(["jarsigner", "-verify", appfile])
+            if ("jar verified." in jarsign_out) and not ("This jar contains unsigned entries which have not been integrity-checked." in jarsign_out):
+                return True
+            else:
+                return False
 
 
     def loadPlayStoreApps(self, apps):
@@ -114,7 +117,9 @@ class AppGateway:
             print("Cannot login to GooglePlay (", error, ")")
             sys.exit(1)
         cli.set_download_folder(self.tempdir)
-        logging.info("Download packages..")
+        logging.info("Bulk download playstore packages..")
+        for app in apps:
+            logging.info("Bulk playstore download: %s", app)
         # maybe patch to get not loaded packages, maybe use rather cli.download_selection
         cli.download_packages(apps)
         self.verifyandmove(apps)
@@ -123,6 +128,7 @@ class AppGateway:
     def downloadHttpsApp(self, app):
         url = self.configparser.get(app, "url")
         if "https://" in url:
+            logging.info("https download: %s", app)
             filename = os.path.join(self.tempdir, app + ".apk")
             r = requests.get(url, stream=True)
             with open(filename, 'wb') as fil:
