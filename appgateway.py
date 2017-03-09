@@ -166,10 +166,16 @@ class AppGateway:
 
     def updateFdroid(self):
         logging.info("updating Fdroid")
+        #clean up repo
         files = os.listdir(self.repodir)
         for fil in files:
             if fil.endswith(".apk"):
                 os.remove(os.path.join(self.repodir,fil))
+        #fill repo
+        files = os.listdir(self.apk_store)
+        for fil in files:
+            if fil.endswith(".apk"):
+                shutil.copy(os.path.join(self.apk_store,fil), self.repodir)
 
         fdroid = subprocess.Popen(["fdroid","update", "-c"], cwd=self.repodir)
         fdroid.wait()
