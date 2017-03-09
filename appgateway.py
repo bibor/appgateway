@@ -40,7 +40,15 @@ class AppGateway:
         if self.configparser.has_option("META", "repo"):
             self.repodir = self.configparser.get("META", "repo")
         else:
-            errormsg = "Repo directory was not found in Configfile"
+            errormsg = "Repo directory was not found in configfile"
+            logging.critical(errormsg)
+            print(errormsg)
+            sys.exit(-1)
+
+        if self.configparser.has_option("META", "apk_store"):
+            self.apk_store = self.configparser.get("META", "apk_store")
+        else:
+            errormsg = "apk store directory was not found in configfile"
             logging.critical(errormsg)
             print(errormsg)
             sys.exit(-1)
@@ -77,11 +85,14 @@ class AppGateway:
 
 
     def verifyandmove(self, apps):
+        print("verifiying apps...")
         for app in apps:
             appfile = os.path.join(self.tempdir, app + ".apk")
             if AppGateway.verifyApk(app, appfile, self.configparser.get(app, "cert_sha256")):
                 logging.info("verified %s", app)
-                shutil.move(appfile, self.repodir)
+                if os.path.isfile(os.path.join(self.apk_store, app +".apk")):
+                    os.remove(os.path.join(self.apk_store, app +".apk"))
+                shutil.move(appfile, self.apk_store)
             else:
                 print("VERIFICATION ERROR: " + appfile + "could not be verified")
                 logging.error("%s could not be verfied. apk will be removed", appflile)
@@ -118,6 +129,7 @@ class AppGateway:
             sys.exit(1)
         cli.set_download_folder(self.tempdir)
         logging.info("Bulk download playstore packages..")
+        print("bulk load playstore packages: \n" + str(apps))
         for app in apps:
             logging.info("Bulk playstore download: %s", app)
         # maybe patch to get not loaded packages, maybe use rather cli.download_selection
@@ -129,6 +141,7 @@ class AppGateway:
         url = self.configparser.get(app, "url")
         if "https://" in url:
             logging.info("https download: %s", app)
+            print("http download: " + app)
             filename = os.path.join(self.tempdir, app + ".apk")
             r = requests.get(url, stream=True)
             with open(filename, 'wb') as fil:
@@ -153,6 +166,11 @@ class AppGateway:
 
     def updateFdroid(self):
         logging.info("updating Fdroid")
+        files = os.listdir(self.repodir)
+        for fil in files:
+            if fil.endswith(".apk"):
+                os.remove(os.path.join(self.repodir,fil))
+
         fdroid = subprocess.Popen(["fdroid","update", "-c"], cwd=self.repodir)
         fdroid.wait()
 
