@@ -53,6 +53,14 @@ class AppGateway:
             print(errormsg)
             sys.exit(-1)
 
+        if self.configparser.has_option("META", "fdroid_dir"):
+            self.fdroid_dir = self.configparser.get("META", "fdroid_dir")
+        else:
+            errormsg = "fdroid directory was not found in configfile"
+            logging.critical(errormsg)
+            print(errormsg)
+            sys.exit(-1)
+
         self.tempdir = "/tmp/appgateway/"
         if not os.path.exists(self.tempdir):
             os.mkdir(self.tempdir)
@@ -166,19 +174,14 @@ class AppGateway:
 
     def updateFdroid(self):
         logging.info("updating Fdroid")
-        #clean up repo
-        files = os.listdir(self.repodir)
-        for fil in files:
-            if fil.endswith(".apk"):
-                os.remove(os.path.join(self.repodir,fil))
-        #fill repo
-        files = os.listdir(self.apk_store)
-        for fil in files:
-            if fil.endswith(".apk"):
-                shutil.copy(os.path.join(self.apk_store,fil), self.repodir)
 
-        fdroid = subprocess.Popen(["fdroid","update", "-c"], cwd=self.repodir)
+        fdroid = subprocess.Popen(["fdroid","update", "-c"], cwd=self.fdroid_dir)
         fdroid.wait()
+        #clean up repo
+        if os.path.exists(os.path.join(self.repodir, "repo")):
+            shutil.rmtree(os.path.join(self.repodir, "repo"))
+        #cp apk_store to repo
+        shutil.copytree(self.apk_store, os.path.join(self.repodir, "repo"))
 
 
 
