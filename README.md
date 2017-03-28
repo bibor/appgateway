@@ -28,7 +28,8 @@ Every app is a section in the INI-like conf file, with one exception,  the META 
 	
 
 ## App verification
-Every downloaded App will be verified. This means that first the sha256sum of the developer certificate in `META-INF/CERT.RSA` will be compared with the value from the configuration file and after that `jarsigner` will be called to check the APK's integrity. I really don't know if this is the correct or the best way to do it, but it's the best I could come up with. If you know it better, please let me know.
+Every downloaded App will be verified. This means that first the sha256sum of the developer certificate in `META-INF/CERT.RSA` will be compared with the value from the configuration file and after that `jarsigner` will be called to check the APK's integrity. ~~I really don't know if this is the correct or the best way to do it, but it's the best I could come up with.~~
+I will change to `apksigner` soon.
 
 
 ## Easy deployment
