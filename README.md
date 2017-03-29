@@ -15,11 +15,12 @@ A example configuration (with placeholders) is given in appgateway_example.conf
 
 Every app is a section in the INI-like conf file, with one exception,  the META section. 
 
-	[META]
-	repo = /var/www/repo # fdroid repository
-	apk_store = /var/apkstore # where the downloaded apps are stored
-	archive = /var/apkstore_archive # future use backup store
-	credentials = /etc/gplay/credentials.conf # appstore credentials (see gplacli documentation)
+    [META]
+    repo = /var/www/html/
+    apk_store = /var/fdroid/repo
+    fdroid_dir = /var/fdroid
+    archive = /var/apkstore_archive
+    credentials = /etc/gplay/credentials.conf
 	
 	[<APP ID>]
 	source = <playstore or https >
