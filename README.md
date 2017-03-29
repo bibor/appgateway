@@ -2,7 +2,7 @@
 
 Appgateway is a tool for fetching Android apps from various sources, verifying their integrity and publishing them over a F-Droid repository.
 At the moment their are two input sources available: https and PlayStore Packages
-All activities will be logged to `/var/log/appgateway.log'
+All activities will be logged to `/var/log/appgateway.log`
 
 ## Requirements
 The tool relies on `gplacli` (https://github.com/matlink/gplaycli) for the PlayStore interface and `fdroidserver` (https://gitlab.com/fdroid/fdroidserver) for providing the repo.
@@ -25,7 +25,7 @@ Every app is a section in the INI-like conf file, with one exception,  the META 
     credentials = /etc/gplay/credentials.conf
 	
 	[<APP ID>]
-	source = <playstore or https >
+	source = <playstore or https>
 	url = <url> # only necessary for https sources
 	cert_sha256 = <hash> # SHA256 of the developers certificate
 	
