@@ -102,27 +102,27 @@ class AppGateway:
                     os.remove(os.path.join(self.apk_store, app +".apk"))
                 shutil.move(appfile, self.apk_store)
             else:
-                print("VERIFICATION ERROR: " + appfile + "could not be verified")
-                logging.error("%s could not be verfied. apk will be removed", appflile)
+                print("VERIFICATION ERROR: " + appfile + " could not be verified")
+                logging.error("%s could not be verfied. apk will be removed", appfile)
                 os.remove(appfile)
 
     @staticmethod
     def verifyApk(app, appfile, sha256_wanted):
-        getRawCert = subprocess.Popen(["unzip", "-p", appfile, "META-INF/CERT.RSA"], stdout=subprocess.PIPE)
-        cert_is = subprocess.check_output(["keytool", "-printcert"], stdin=getRawCert.stdout)
-        getRawCert.wait()
-        lines = cert_is.split("\n")
-        for line in lines:
-            if "SHA256" in line:
-                sha256_is = line.split(": ")[1]
-        if sha256_wanted != sha256_is:
+        try:
+            rawCert = subprocess.check_output(["apksigner", "verify", "--print-certs", appfile])
+        except:
             return False
+        lines = rawCert.split("\n")
+        sha256_is = ""
+        for line in lines:
+            if "SHA-256" in line:
+                if sha256_is != "":
+                    return False
+                sha256_is = line.split(": ")[1]
+        if sha256_is == sha256_wanted:
+            return True
         else:
-            jarsign_out = subprocess.check_output(["jarsigner", "-verify", appfile])
-            if ("jar verified." in jarsign_out) and not ("This jar contains unsigned entries which have not been integrity-checked." in jarsign_out):
-                return True
-            else:
-                return False
+            return False
 
 
     def loadPlayStoreApps(self, apps):

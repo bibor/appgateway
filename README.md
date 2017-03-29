@@ -7,12 +7,14 @@ All activities will be logged to `/var/log/appgateway.log'
 ## Requirements
 The tool relies on `gplacli` (https://github.com/matlink/gplaycli) for the PlayStore interface and `fdroidserver` (https://gitlab.com/fdroid/fdroidserver) for providing the repo.
 
+### Issues
+Commit `61ed5aa6f1e3cae7beecc7f1375ae86b0b70cba5` of `gplaycli` breakes `appgateway`. I've forked a working version (https://github.com/bibor/gplaycli).
+
 ## Configuration
 The configuration file must be placed at /etc/appgateway/appgateway.conf
 A example configuration (with placeholders) is given in appgateway_example.conf
 
 ### Syntax
-
 Every app is a section in the INI-like conf file, with one exception,  the META section. 
 
     [META]
@@ -29,9 +31,7 @@ Every app is a section in the INI-like conf file, with one exception,  the META 
 	
 
 ## App verification
-Every downloaded App will be verified. This means that first the sha256sum of the developer certificate in `META-INF/CERT.RSA` will be compared with the value from the configuration file and after that `jarsigner` will be called to check the APK's integrity. ~~I really don't know if this is the correct or the best way to do it, but it's the best I could come up with.~~
-I will change to `apksigner` soon.
-
+The integrity of all downloaded apps will be verified through `apksigner`. The SHA256 sum of the signer's cert will be compared to the one, given in the config file.
 
 ## Easy deployment
 I'm currently working on a docker container with a full functional setup for easy deployment
